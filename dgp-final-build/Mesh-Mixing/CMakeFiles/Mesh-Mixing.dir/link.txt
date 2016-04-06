@@ -1,0 +1,1 @@
+/usr/local/bin/g++-5    -ggdb -Wall -std=c++11 -std=c++11 -Wno-deprecated-declarations -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/Mesh-Mixing.dir/main.cpp.o  -o Mesh-Mixing  /usr/local/lib/libGLEW.dylib -framework AGL -framework OpenGL /usr/local/lib/libglfw3.dylib 

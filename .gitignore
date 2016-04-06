@@ -1,3 +1,6 @@
+# --- IGNORE BUILD DIR ---
+dgp-final-build/
+
 # --- GIT IGNORE VIM TEMPORARY FILES ---
 # swap
 [._]*.s[a-w][a-z]

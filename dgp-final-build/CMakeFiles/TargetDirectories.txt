@@ -1,4 +1,0 @@
-/Volumes/evannick/dgp-final/dgp-final-build/CMakeFiles/OPENGP.dir
-/Volumes/evannick/dgp-final/dgp-final-build/Mesh-Mixing/CMakeFiles/Mesh-Mixing.dir
-/Volumes/evannick/dgp-final/dgp-final-build/CMakeFiles/opengp.dir
-/Volumes/evannick/dgp-final/dgp-final-build/data/CMakeFiles/DGP_DATA.dir

@@ -5,8 +5,12 @@
 using namespace OpenGP;
 
 struct MainWindow : public ArcballWindow{
-    SurfaceMesh mesh;
-    SurfaceMeshRenderFlat renderer = SurfaceMeshRenderFlat(mesh);
+    SurfaceMesh meshFrom;
+    SurfaceMesh meshTo;
+    SurfaceMesh meshResult;
+
+    SurfaceMeshRenderFlat rendererFrom = SurfaceMeshRenderFlat(meshFrom);
+    SurfaceMeshRenderFlat rendererTo = SurfaceMeshRenderFlat(meshTo);
 
     std::string datadir = "../../dgp-final/data/";
     std::string icoSphere = "icosphere_e.obj";
@@ -14,16 +18,33 @@ struct MainWindow : public ArcballWindow{
     std::string spinePlane = "spineplane_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = mesh.read(datadir + thornsPlane);
+        bool success = meshFrom.read(datadir + thornsPlane);
         if(!success) mFatal() << "File not found: " << thornsPlane;
-        mesh.update_face_normals();
-        this->scene.add(renderer);
+        success = meshTo.read(datadir + icoSphere);
+        if(!success) mFatal() << "File not found: " << thornsPlane;
+
+        TranslateMesh(meshTo, Vec3(1,0,0));
+        TranslateMesh(meshFrom, Vec3(-1,0,0));
+
+        meshFrom.update_face_normals();
+        meshTo.update_face_normals();
+
+        this->scene.add(rendererFrom);
+        this->scene.add(rendererTo);
     }
 
     void key_callback(int key, int scancode, int action, int mods) override{
         ArcballWindow::key_callback(key, scancode, action, mods);
         if(key==GLFW_KEY_SPACE && action==GLFW_RELEASE){
             //do something on space release
+        }
+    }
+
+    static void TranslateMesh(SurfaceMesh& mesh, Vec3 translate)
+    {
+        for (auto const& v : mesh.vertices())
+        {
+            mesh.position(v) += translate;
         }
     }
 };

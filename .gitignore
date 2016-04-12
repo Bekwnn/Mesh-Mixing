@@ -1,3 +1,6 @@
+# --- goddammit macintosh --
+.DS_Store
+
 # --- IGNORE BUILD DIR ---
 dgp-final-build/
 

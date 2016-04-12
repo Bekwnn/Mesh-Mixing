@@ -50,9 +50,6 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
 
         uvmapping[v] = Vec2(theta, phi);
     }
-    if (Mapping::IsUVMapGood(uvmapping))
-        std::cout << "Map Is Good" << std::endl;
-    else std::cout << "Not Good" << std::endl;
 
 }
 
@@ -64,7 +61,7 @@ bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
         if (vec[0] < 0.f || vec[0] > 1.f || vec[1] < 0.f || vec[1] > 1.f)
         {
             flag = false;
-            std::cout << vec << std::endl;
+            std::cout << "Invalid value: " << vec << std::endl;
         }
     }
     return flag;

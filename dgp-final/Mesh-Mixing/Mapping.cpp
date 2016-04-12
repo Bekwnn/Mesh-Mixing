@@ -21,6 +21,7 @@ void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property
 
     for (Vertex v : mesh.vertices())
     {
+        //mapping not currently 0-1 TODO: fix
         uvmapping[v] = Vec2((mesh.position(v)[0] - min[0])/max[0], (mesh.position(v)[2] - min[1])/max[1]);
         std::cout << "Vec2: " << uvmapping[v] << std::endl;
     }
@@ -29,4 +30,7 @@ void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property
 void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {
     //TODO: incomplete
+    /* Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
+     * then map to u and v using phi and theta
+     */
 }

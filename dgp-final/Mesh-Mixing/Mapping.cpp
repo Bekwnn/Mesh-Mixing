@@ -1,6 +1,7 @@
 #include "Mapping.h"
+#include <cmath>
 
-#define PI 3.14159265
+#define PI 3.14159265358979
 using namespace OpenGP;
 
 void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
@@ -24,13 +25,7 @@ void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property
 
     for (Vertex v : mesh.vertices())
     {
-<<<<<<< HEAD
         uvmapping[v] = Vec2((mesh.position(v)[0] - min[0])/(max[0]-min[0]), (mesh.position(v)[2] - min[1])/(max[1]-min[1]));
-=======
-        //mapping not currently 0-1 TODO: fix
-        uvmapping[v] = Vec2((mesh.position(v)[0] - min[0])/max[0], (mesh.position(v)[2] - min[1])/max[1]);
-        //std::cout << "Vec2: " << uvmapping[v] << std::endl;
->>>>>>> 7c8798fa8871d103fa9b6d2637bdc4cca9bbf856
     }
 }
 
@@ -50,10 +45,15 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
         // Convert theta and phi -> [0,1]
         theta = (theta + PI) / (2.0f*PI);
         phi = (phi + (PI/2.0f)) / PI;
+        theta = fmin(1.0f, fmax(0.0f, theta));
+        phi = fmin(1.0f, fmax(0.0f, phi));
 
-        std::cout << "theta: " << theta << ", phi: " << phi << std::endl;
         uvmapping[v] = Vec2(theta, phi);
     }
+    if (Mapping::IsUVMapGood(uvmapping))
+        std::cout << "Map Is Good" << std::endl;
+    else std::cout << "Not Good" << std::endl;
+
 }
 
 bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
@@ -62,7 +62,10 @@ bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
     for (auto vec : uvmapping.vector())
     {
         if (vec[0] < 0.f || vec[0] > 1.f || vec[1] < 0.f || vec[1] > 1.f)
+        {
             flag = false;
+            std::cout << vec << std::endl;
+        }
     }
     return flag;
 }

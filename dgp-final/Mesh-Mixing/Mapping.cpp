@@ -33,4 +33,13 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
     /* Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
      * then map to u and v using phi and theta
      */
+
+    for (auto const& v : mesh.vertices())
+    {
+        Vec3 p = mesh.position(v);
+        float theta = acosf(p.z / sqrtf(p.x*p.x + p.y*p.y + p.z*p.z));
+        float phi = atan2(p.y, p.z);
+
+        uvmapping[v] = Vec2(theta, phi);
+    }
 }

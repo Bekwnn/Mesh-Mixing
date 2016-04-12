@@ -2,6 +2,8 @@
 #include <OpenGP/SurfaceMesh/SurfaceMesh.h>
 #include <OpenGP/SurfaceMesh/GL/SurfaceMeshRenderFlat.h>
 #include "ArcballWindow.h"
+#include "Mixer.h"
+#include "Mapping.h"
 using namespace OpenGP;
 
 struct MainWindow : public ArcballWindow{
@@ -22,6 +24,10 @@ struct MainWindow : public ArcballWindow{
         if(!success) mFatal() << "File not found: " << thornsPlane;
         success = meshTo.read(datadir + icoSphere);
         if(!success) mFatal() << "File not found: " << thornsPlane;
+
+        //meshResult = Mixer::ApplyCoating(meshFrom, meshTo);
+        SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
+        Mapping::PlaneMapping(meshFrom, uvCoordFrom);
 
         TranslateMesh(meshTo, Vec3(1,0,0));
         TranslateMesh(meshFrom, Vec3(-1,0,0));

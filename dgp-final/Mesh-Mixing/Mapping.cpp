@@ -1,0 +1,32 @@
+#include "Mapping.h"
+using namespace OpenGP;
+
+void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
+{
+    //TODO: incomplete
+    Vec2 min(100,100), max(-100,-100);
+    for (auto const& v : mesh.vertices())
+    {
+        if (mesh.position(v)[0] < min[0])
+            min[0] = mesh.position(v)[0];
+        else if (mesh.position(v)[0] > max[0])
+            max[0] = mesh.position(v)[0];
+
+        // y is world up axis for vec3
+        if (mesh.position(v)[2] < min[1])
+            min[1] = mesh.position(v)[2];
+        else if (mesh.position(v)[2] > max[1])
+            max[1] = mesh.position(v)[2];
+    }
+
+    for (Vertex v : mesh.vertices())
+    {
+        uvmapping[v] = Vec2((mesh.position(v)[0] - min[0])/max[0], (mesh.position(v)[2] - min[1])/max[1]);
+        std::cout << "Vec2: " << uvmapping[v] << std::endl;
+    }
+}
+
+void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
+{
+    //TODO: incomplete
+}

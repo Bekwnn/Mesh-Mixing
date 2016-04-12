@@ -1,8 +1,12 @@
 #include <OpenGP/SurfaceMesh/SurfaceMesh.h>
 
 class Mixer {
+    typedef OpenGP::SurfaceMesh SurfaceMesh;
+    typedef OpenGP::Vec2 Vec2;
+
 public:
-    //TODO: add vertex properties mapping S to U or providing uv coordinates
-    //using fixed plane and sphere mappings for now
-    static OpenGP::SurfaceMesh ApplyCoating(OpenGP::SurfaceMesh const &meshFrom, OpenGP::SurfaceMesh const& meshTo);
+    //using passed uvmappings to map S to U for now.
+    static SurfaceMesh ApplyCoating(SurfaceMesh const &meshFrom, SurfaceMesh const& meshTo,
+                                    SurfaceMesh::Vertex_property<Vec2> meshFromMap,
+                                    SurfaceMesh::Vertex_property<Vec2> meshToMap);
 };

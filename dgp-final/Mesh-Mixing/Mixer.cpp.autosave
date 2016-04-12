@@ -25,7 +25,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
         SurfaceMesh::Vertex closest;
         for (auto vertU : meshTo.vertices())
         {
-
+            
         }
     }
 

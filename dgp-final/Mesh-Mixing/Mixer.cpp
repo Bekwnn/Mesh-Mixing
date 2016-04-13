@@ -23,11 +23,24 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
 
     for (auto vertS : meshFrom.vertices())
     {
+        Vec2 S = meshFromMap[vertS];
         SurfaceMesh::Vertex closest;
+        float closestU(1.0f), closestV(1.0f);
         for (auto vertU : meshTo.vertices())
         {
-
+            Vec2 U = meshToMap[vertU];
+            if (fabs(U[0]-V[0]) < closestU && fabs(U[1]-V[1]) < closestV)
+            {
+                closestU = fabs(U[0]-V[0]);
+                closestV = fabs(U[1]-V[1]);
+                closest = vertU;
+            }
         }
+    }
+
+    for (auto vertS : meshFrom.vertices())
+    {
+        // Traverse one-ring to find the closest mapping between the adjacent vertices (???)
     }
 
     //RETURN FINAL RESULT

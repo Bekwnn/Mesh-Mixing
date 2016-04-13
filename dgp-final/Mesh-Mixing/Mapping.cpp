@@ -35,7 +35,6 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
     /* Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
      * then map to u and v using phi and theta
      */
-
     for (auto const& v : mesh.vertices())
     {
         Vec3 p = mesh.position(v);
@@ -64,7 +63,6 @@ bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
         if (vec[0] < 0.f || vec[0] > 1.f || vec[1] < 0.f || vec[1] > 1.f)
         {
             flag = false;
-            std::cout << vec << std::endl;
         }
     }
     return flag;

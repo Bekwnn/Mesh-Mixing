@@ -1,7 +1,7 @@
 #include <OpenGP/GL/GlfwWindow.h>
 #include <OpenGP/SurfaceMesh/SurfaceMesh.h>
 #include <OpenGP/SurfaceMesh/GL/SurfaceMeshRenderFlat.h>
-#include "ArcballWindow.h"
+#include "internal/ArcballWindow.h"
 #include "Mixer.h"
 #include "Mapping.h"
 using namespace OpenGP;

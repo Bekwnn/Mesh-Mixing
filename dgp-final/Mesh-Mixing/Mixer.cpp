@@ -18,7 +18,6 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
      *  - profit!
      */
 
-    // *~*~*~* CREATE MAPPING FROM S TO U *~*~*~*
     std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU;
 
     for (auto vertS : meshFrom.vertices())
@@ -26,10 +25,9 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
         SurfaceMesh::Vertex closest;
         for (auto vertU : meshTo.vertices())
         {
-
+            
         }
     }
 
-    //RETURN FINAL RESULT
     return SurfaceMesh();
 }

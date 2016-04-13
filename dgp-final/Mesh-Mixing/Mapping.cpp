@@ -49,9 +49,6 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
 
         uvmapping[v] = Vec2(theta, phi);
     }
-    if (Mapping::IsUVMapGood(uvmapping))
-        std::cout << "Map Is Good" << std::endl;
-    else std::cout << "Not Good" << std::endl;
 
 }
 

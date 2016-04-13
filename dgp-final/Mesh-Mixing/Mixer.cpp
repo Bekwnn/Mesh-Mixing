@@ -22,12 +22,24 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
 
     for (auto vertS : meshFrom.vertices())
     {
+        Vec2 S = meshFromMap[vertS];
         SurfaceMesh::Vertex closest;
+        float bestDist = 100.f;
         for (auto vertU : meshTo.vertices())
         {
-            
+            Vec2 U = meshToMap[vertU];
+            float udiff = S[0]-U[0];
+            float vdiff = S[1]-U[1];
+
+            float vertDist = fabs(sqrt(udiff*udiff + vdiff*vdiff));
+            if (vertDist > bestDist)
+                closest = vertU;
         }
+
+        //map(vertS, closest)
+        vertexMappingStoU.insert(std::make_pair(vertS, closest));
     }
 
+    //RETURN FINAL RESULT
     return SurfaceMesh();
 }

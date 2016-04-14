@@ -31,7 +31,7 @@ struct MainWindow : public ArcballWindow{
         Mapping::SphereMapping(meshTo, uvCoordTo);
 
         meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
-        
+
         TranslateMesh(meshTo, Vec3(1,0,0));
         TranslateMesh(meshFrom, Vec3(-1,0,0));
 

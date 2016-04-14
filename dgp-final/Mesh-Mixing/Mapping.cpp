@@ -4,9 +4,9 @@
 #define PI 3.14159265358979
 using namespace OpenGP;
 
+/// Maps a mesh uv coords using x and z coordinates, ignores y (the world up) coordinate
 void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {
-    //TODO: incomplete
     Vec2 min(100,100), max(-100,-100);
     for (auto const& v : mesh.vertices())
     {
@@ -29,12 +29,10 @@ void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property
     }
 }
 
+/// Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
+/// then map to u and v using phi and theta
 void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {
-    //TODO: incomplete
-    /* Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
-     * then map to u and v using phi and theta
-     */
     for (auto const& v : mesh.vertices())
     {
         Vec3 p = mesh.position(v);
@@ -52,6 +50,7 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
 
 }
 
+/// Returns true if all cordinates in a uvmapping are from 0.f to 1.f
 bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {
     bool flag = true;

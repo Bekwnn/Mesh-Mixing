@@ -1,10 +1,12 @@
+#include <Eigen/Sparse>
 #include "Mixer.h"
 #include "Mapping.h"
 #include "internal/SurfaceMeshVerticesKDTree.h"
 using namespace OpenGP;
 
-
-SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& meshTo,
+/// Applies the high frequency details (ie texture) of meshFrom to the surface of meshTo
+/// using laplacian coordinates and surface editing
+SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
                                 SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                 SurfaceMesh::Vertex_property<Vec2> meshToMap)
 {
@@ -24,9 +26,15 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh const& meshFrom, SurfaceMesh const& 
     std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU
             = MapUVs(meshFrom, meshTo, meshFromMap, meshToMap);
 
+    SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
+
+    ComputeDifferentials(meshFrom, differentialsFrom);
+
     return SurfaceMesh();
 }
 
+/// Takes two meshes and their corresponding UV maps to return a vertex mapping from
+/// meshFrom to meshTo. The mapping is not 1:1 nor onto.
 std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh const& meshFrom, SurfaceMesh const& meshTo,
                                                                  SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                                                  SurfaceMesh::Vertex_property<Vec2> meshToMap)
@@ -60,8 +68,8 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
     return vertexMappingStoU;
 }
 
-
-void Mixer::ComputeDifferentials(SurfaceMesh mesh, SurfaceMesh::Vertex_property<Vec3>& differentials)
+/// Computes the laplacian coordinates using cotangent weights
+void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec3>& differentials)
 {
     /*
      * Compute the Laplacian Coordinates of a mesh using uniform weights
@@ -81,7 +89,7 @@ void Mixer::ComputeDifferentials(SurfaceMesh mesh, SurfaceMesh::Vertex_property<
      */
     unsigned int n = mesh.n_vertices();
     typedef Eigen::Triplet<Scalar> Triplet;
-    Eigen::SparseMatrix<OpenGP::Scalar> L;
+    Eigen::SparseMatrix<Scalar> L;
 
     SurfaceMesh::Halfedge betaEdge, alphaEdge;
     SurfaceMesh::Vertex vBeta, vAlpha, v_j;

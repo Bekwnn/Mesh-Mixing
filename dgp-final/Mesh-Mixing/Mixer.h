@@ -7,7 +7,7 @@ class Mixer {
 
 public:
     //using passed uvmappings to map S to U for now.
-    static SurfaceMesh ApplyCoating(SurfaceMesh const &meshFrom, SurfaceMesh const& meshTo,
+    static SurfaceMesh ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
                                     SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                     SurfaceMesh::Vertex_property<Vec2> meshToMap);
 
@@ -16,5 +16,5 @@ private:
                                                                      SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                                                      SurfaceMesh::Vertex_property<Vec2> meshToMap);
 
-    void ComputeDifferentials(SurfaceMesh input, SurfaceMesh::Vertex_property<Vec3>& differentials);
+    void ComputeDifferentials(SurfaceMesh const& input, SurfaceMesh::Vertex_property<Vec3>& differentials);
 };

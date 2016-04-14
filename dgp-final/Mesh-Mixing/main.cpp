@@ -13,6 +13,7 @@ struct MainWindow : public ArcballWindow{
 
     SurfaceMeshRenderFlat rendererFrom = SurfaceMeshRenderFlat(meshFrom);
     SurfaceMeshRenderFlat rendererTo = SurfaceMeshRenderFlat(meshTo);
+    SurfaceMeshRenderFlat renderResult = SurfaceMeshRenderFlat(meshResult);
 
     std::string datadir = "../../dgp-final/data/";
     std::string icoSphere = "icosphere_e.obj";
@@ -32,14 +33,18 @@ struct MainWindow : public ArcballWindow{
 
         meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
 
-        TranslateMesh(meshTo, Vec3(1,0,0));
-        TranslateMesh(meshFrom, Vec3(-1,0,0));
+        TranslateMesh(meshTo, Vec3(2.5,0,0));
+        TranslateMesh(meshFrom, Vec3(-2.5,0,0));
 
+        // Necessary even for flat shading
         meshFrom.update_face_normals();
         meshTo.update_face_normals();
+        meshResult.update_face_normals();
+
 
         this->scene.add(rendererFrom);
         this->scene.add(rendererTo);
+        this->scene.add(renderResult);
     }
 
     void key_callback(int key, int scancode, int action, int mods) override{

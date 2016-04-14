@@ -21,16 +21,15 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
      *  - ???
      *  - profit!
      */
-    SurfaceMesh resultMesh;
+    SurfaceMesh resultMesh(meshTo);
 
     std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU
             = MapUVs(meshFrom, meshTo, meshFromMap, meshToMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
-
     ComputeDifferentials(meshFrom, differentialsFrom);
 
-    return SurfaceMesh();
+    return resultMesh;
 }
 
 /// Takes two meshes and their corresponding UV maps to return a vertex mapping from
@@ -39,10 +38,13 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
                                                                  SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                                                  SurfaceMesh::Vertex_property<Vec2> meshToMap)
 {
+    std::cout << "UVMapping begins:" << std::endl;
+
     std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU;
 
     std::vector<std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex>> vertexMapping;
 
+    // Construct 3D mesh representative of meshFrom's uv mapping
     SurfaceMesh flatU(meshTo);
     for (auto vertU : meshTo.vertices())
     {
@@ -52,18 +54,21 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
 
     SurfaceMeshVerticesKDTree meshToTree(flatU);
 
+    // Find closest vertex mapping via uv coordinates
     size_t vertexID = 0;
     for (auto vertS : meshFrom.vertices())
     {
         Vec2 S = meshFromMap[vertS];
         vertexMapping.push_back( std::make_pair(vertS, SurfaceMesh::Vertex( meshToTree.closest_vertex( Vec3(S[0], S[1], 0)).idx() ) ) );
 
+        // Progress statement
         vertexID++;
-        if (vertexID % 100 == 0)
-            std::cout << "progress: " << vertexID << std::endl;
+        PercentProgress(meshFrom.n_vertices(), vertexID);
     }
 
     vertexMappingStoU.insert(begin(vertexMapping), end(vertexMapping));
+
+    std::cout << "UVMapping finished." << std::endl;
 
     return vertexMappingStoU;
 }
@@ -71,6 +76,8 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
 /// Computes the laplacian coordinates using cotangent weights
 void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec3>& differentials)
 {
+    std::cout << "Computing differentials:" << std::endl;
+
     /*
      * Compute the Laplacian Coordinates of a mesh using uniform weights
     for (auto v_i : input.vertices())
@@ -96,8 +103,8 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     Point p_i, p_j, p_b, p_a, d_ib, d_ia, d_aj, d_bj, d_ij;
     Scalar alpha, beta, area, cotanAlpha, cotanBeta, cotanSum;
 
-    SparseMatrix<Scalar> M(n, n);
-    SparseMatrix<Scalar> D(n, n);
+    Eigen::SparseMatrix<Scalar> M(n, n);
+    Eigen::SparseMatrix<Scalar> D(n, n);
 
     std::vector<Triplet> mList;
     std::vector<Triplet> diagonalList;
@@ -105,6 +112,7 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     mList.reserve(n * n);
     diagonalList.reserve(n * n);
 
+    size_t vertexID = 0;
     for (auto const& v_i : mesh.vertices())
     {
         cotanSum = 0.0f;
@@ -159,6 +167,9 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
         // Store one half of the total area on the diagonal matrix.
         diagonalList.push_back(Triplet(v_i.idx(), v_i.idx(), 0.5f * area));
 
+        // Progress statement
+        vertexID++;
+        PercentProgress(mesh.n_vertices(), vertexID);
     }
 
     // Compute the final Laplacian and return it.
@@ -166,6 +177,15 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     D.setFromTriplets(diagonalList.begin(), diagonalList.end());
 
     L = D * M;
+
+    std::cout << "Differentials finished." << std::endl;
 }
 
+void Mixer::PercentProgress(int size, int iternum)
+{
+    if (iternum % (size/10) == 0)
+    {
+        std::cout << "progress: " << (iternum/(size/10))*10 << "%" << std::endl;
+    }
+}
 

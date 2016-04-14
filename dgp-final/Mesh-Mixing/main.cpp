@@ -25,12 +25,13 @@ struct MainWindow : public ArcballWindow{
         success = meshTo.read(datadir + icoSphere);
         if(!success) mFatal() << "File not found: " << thornsPlane;
 
-        //meshResult = Mixer::ApplyCoating(meshFrom, meshTo);
         SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
         Mapping::PlaneMapping(meshFrom, uvCoordFrom);
         SurfaceMesh::Vertex_property<Vec2> uvSphereCoord = meshTo.add_vertex_property("uvcoord", Vec2());
         Mapping::SphereMapping(meshTo, uvSphereCoord);
-        
+
+        meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvSphereCoord);
+
         TranslateMesh(meshTo, Vec3(1,0,0));
         TranslateMesh(meshFrom, Vec3(-1,0,0));
 

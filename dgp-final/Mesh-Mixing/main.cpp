@@ -17,7 +17,7 @@ struct MainWindow : public ArcballWindow{
 
     std::string datadir = "../../dgp-final/data/";
     std::string icoSphere = "icosphere_e.obj";
-    std::string thornsPlane = "thornsplane_e.obj";
+    std::string thornsPlane = "thornsplane_low_e.obj";
     std::string spinePlane = "spineplane_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){

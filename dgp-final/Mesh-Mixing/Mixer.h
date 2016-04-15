@@ -18,5 +18,7 @@ private:
 
     static void ComputeDifferentials(SurfaceMesh const& input, SurfaceMesh::Vertex_property<Vec3>& differentials);
 
+    static SurfaceMesh SmoothCopy(SurfaceMesh const& mesh, int iterations);
+
     static void PercentProgress(int size, int iternum);
 };

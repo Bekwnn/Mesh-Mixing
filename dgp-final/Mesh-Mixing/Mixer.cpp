@@ -2,6 +2,7 @@
 #include "Mixer.h"
 #include "Mapping.h"
 #include "internal/SurfaceMeshVerticesKDTree.h"
+#include "Smoother.h"
 using namespace OpenGP;
 
 /// Applies the high frequency details (ie texture) of meshFrom to the surface of meshTo
@@ -28,6 +29,8 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
     ComputeDifferentials(meshFrom, differentialsFrom);
+
+    SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 10);
 
     return resultMesh;
 }
@@ -179,6 +182,30 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     L = D * M;
 
     std::cout << "Differentials finished." << std::endl;
+}
+
+SurfaceMesh Mixer::SmoothCopy(SurfaceMesh const& mesh, int iterations)
+{
+    std::cout << "Creating smooth copy:" << std::endl;
+
+    SurfaceMesh smoothMeshFrom(mesh);
+    Smoother smoother = Smoother(smoothMeshFrom);
+
+    smoothMeshFrom.update_face_normals();
+    smoothMeshFrom.update_vertex_normals();
+
+    smoother.init();
+    smoother.use_graph_laplacian();
+
+    for (int i = 0; i < iterations; i++)
+    {
+        smoother.smooth_explicit(0.05f);
+        PercentProgress(iterations, i+1);
+    }
+
+    std::cout << "Smooth copy finished." << std::endl;
+
+    return smoothMeshFrom;
 }
 
 void Mixer::PercentProgress(int size, int iternum)

@@ -30,7 +30,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
     ComputeDifferentials(meshFrom, differentialsFrom);
 
-    SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 10);
+    SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 40);
 
     return resultMesh;
 }
@@ -199,7 +199,7 @@ SurfaceMesh Mixer::SmoothCopy(SurfaceMesh const& mesh, int iterations)
 
     for (int i = 0; i < iterations; i++)
     {
-        smoother.smooth_explicit(0.05f);
+        smoother.smooth_explicit(0.1f);
         PercentProgress(iterations, i+1);
     }
 

@@ -11,14 +11,14 @@ public:
                                     SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                     SurfaceMesh::Vertex_property<Vec2> meshToMap);
 
+    static SurfaceMesh SmoothCopy(SurfaceMesh const& mesh, int iterations);
+
 private:
     static std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> MapUVs(SurfaceMesh const &meshFrom, SurfaceMesh const& meshTo,
                                                                      SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                                                      SurfaceMesh::Vertex_property<Vec2> meshToMap);
 
     static void ComputeDifferentials(SurfaceMesh const& input, SurfaceMesh::Vertex_property<Vec3>& differentials);
-
-    static SurfaceMesh SmoothCopy(SurfaceMesh const& mesh, int iterations);
 
     static void PercentProgress(int size, int iternum);
 };

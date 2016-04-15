@@ -24,8 +24,8 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
      */
     SurfaceMesh resultMesh(meshTo);
 
-    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU
-            = MapUVs(meshFrom, meshTo, meshFromMap, meshToMap);
+    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingUtoS
+            = MapUVs(meshTo, meshFrom, meshToMap, meshFromMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
     ComputeDifferentials(meshFrom, differentialsFrom);
@@ -44,6 +44,10 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
     ComputeDifferentials(meshTo, differentialsSphere);
 
+    for (auto m : vertexMappingUtoS)
+    {
+        
+    }
 
     return resultMesh;
 }

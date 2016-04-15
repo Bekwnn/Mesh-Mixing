@@ -22,18 +22,23 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
      *  - ???
      *  - profit!
      */
+
+    // copy the mesh we're applying the coating to
     SurfaceMesh resultMesh(meshTo);
 
+    //map from the vertex we're applying the coating to, to the mesh with the coating
     std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU
             = MapUVs(meshFrom, meshTo, meshFromMap, meshToMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
     ComputeDifferentials(meshFrom, differentialsFrom);
 
+    //create smoothed copy of the coating mesh
     SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 40);
     SurfaceMesh::Vertex_property<Vec3> differentialsSmoothFrom = smoothFrom.add_vertex_property("SmoothDifferentials", Vec3());
     ComputeDifferentials(smoothFrom, differentialsSmoothFrom);
 
+    //calculate differences from original coating mesh to the smoothing mesh
     SurfaceMesh::Vertex_property<Vec3> diffDiff = smoothFrom.add_vertex_property("Chi", Vec3());
 
     for (auto v : smoothFrom.vertices())
@@ -44,6 +49,9 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
     ComputeDifferentials(meshTo, differentialsSphere);
 
+    //update vertex normals of meshes for orientation
+    meshFrom.update_vertex_normals();
+    meshTo.update_vertex_normals();
 
     return resultMesh;
 }
@@ -138,6 +146,13 @@ SurfaceMesh Mixer::SmoothCopy(SurfaceMesh const& mesh, int iterations)
     std::cout << "Smooth copy finished." << std::endl;
 
     return smoothMeshFrom;
+}
+
+Eigen::Matrix3f Mixer::ComputeRotationMatrix(Vec3 normA, Vec3 normB)
+{
+    Eigen::Matrix3f R;
+    R = Eigen::Quaternionf().setFromTwoVectors(normA, normB);
+    return R;
 }
 
 void Mixer::PercentProgress(int size, int iternum)

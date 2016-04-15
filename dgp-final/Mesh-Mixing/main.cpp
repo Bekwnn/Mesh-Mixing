@@ -32,7 +32,17 @@ struct MainWindow : public ArcballWindow{
         SurfaceMesh::Vertex_property<Vec2> uvCoordTo = meshTo.add_vertex_property("uvcoord", Vec2());
         Mapping::SphereMapping(meshTo, uvCoordTo);
 
-        meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
+        //meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
+
+        Vec3 normX(1,0,0);
+        Vec3 normY(0,1,0);
+
+        Eigen::Matrix3f rot;
+        rot = Mixer::ComputeRotationMatrix(normX, normY);
+
+        std::cout << rot << std::endl;
+        Vec3 rotatedVec = rot*normX;
+        std::cout << "rotated (1,0,0): " << rotatedVec << std::endl;
 
         TranslateMesh(meshTo, Vec3(2.5,0,0));
         TranslateMesh(meshFrom, Vec3(-2.5,0,0));

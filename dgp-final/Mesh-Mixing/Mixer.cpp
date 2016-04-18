@@ -27,8 +27,8 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     SurfaceMesh resultMesh(meshTo);
 
     //map from the vertex we're applying the coating to, to the mesh with the coating
-    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU
-            = MapUVs(meshFrom, meshTo, meshFromMap, meshToMap);
+    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingUtoS
+            = MapUVs(meshTo, meshFrom, meshToMap, meshFromMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
     ComputeDifferentials(meshFrom, differentialsFrom);
@@ -51,7 +51,12 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
 
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();
-    meshTo.update_vertex_normals();
+    resultMesh.update_vertex_normals();
+
+    for (auto m : vertexMappingUtoS)
+    {
+
+    }
 
     Mixer::ApplyLaplacianShift(meshFrom, meshTo, vertexMappingUtoS);
 
@@ -68,9 +73,9 @@ void Mixer::ApplyLaplacianShift(meshFrom, meshTo, vertexMappingUtoS)
 
 /// Takes two meshes and their corresponding UV maps to return a vertex mapping from
 /// meshFrom to meshTo. The mapping is not 1:1 nor onto.
-std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh const& meshFrom, SurfaceMesh const& meshTo,
-                                                                 SurfaceMesh::Vertex_property<Vec2> meshFromMap,
-                                                                 SurfaceMesh::Vertex_property<Vec2> meshToMap)
+std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh const& meshTo, SurfaceMesh const& meshFrom,
+                                                                 SurfaceMesh::Vertex_property<Vec2> meshToMap,
+                                                                 SurfaceMesh::Vertex_property<Vec2> meshFromMap)
 {
     std::cout << "UVMapping begins:" << std::endl;
 
@@ -79,21 +84,21 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
     std::vector<std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex>> vertexMapping;
 
     // Construct 3D mesh representative of meshFrom's uv mapping
-    SurfaceMesh flatU(meshTo);
+    SurfaceMesh flatU(meshFrom);
     for (auto vertU : meshTo.vertices())
     {
-        Vec2 tempv2 = meshToMap[vertU];
+        Vec2 tempv2 = meshFromMap[vertU];
         flatU.position(vertU) = Vec3(tempv2[0], tempv2[1], 0);
     }
 
-    SurfaceMeshVerticesKDTree meshToTree(flatU);
+    SurfaceMeshVerticesKDTree meshFromTree(flatU);
 
     // Find closest vertex mapping via uv coordinates
     size_t vertexID = 0;
-    for (auto vertS : meshFrom.vertices())
+    for (auto vertS : meshTo.vertices())
     {
-        Vec2 S = meshFromMap[vertS];
-        vertexMapping.push_back( std::make_pair(vertS, SurfaceMesh::Vertex( meshToTree.closest_vertex( Vec3(S[0], S[1], 0)).idx() ) ) );
+        Vec2 S = meshToMap[vertS];
+        vertexMapping.push_back( std::make_pair(vertS, SurfaceMesh::Vertex( meshFromTree.closest_vertex( Vec3(S[0], S[1], 0)).idx() ) ) );
 
         // Progress statement
         vertexID++;

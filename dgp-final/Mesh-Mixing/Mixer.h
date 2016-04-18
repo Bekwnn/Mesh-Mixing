@@ -17,7 +17,7 @@ public:
     static Eigen::Matrix3f ComputeRotationMatrix(Vec3 normA, Vec3 normB);
 
 private:
-    static std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> MapUVs(SurfaceMesh const &meshFrom, SurfaceMesh const& meshTo,
+    static std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> MapUVs(SurfaceMesh const& meshFrom, SurfaceMesh const &meshTo,
                                                                      SurfaceMesh::Vertex_property<Vec2> meshFromMap,
                                                                      SurfaceMesh::Vertex_property<Vec2> meshToMap);
 

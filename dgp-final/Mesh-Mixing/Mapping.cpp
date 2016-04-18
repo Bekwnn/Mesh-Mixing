@@ -45,6 +45,29 @@ void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_propert
 
 }
 
+/// Maps a mesh uv coords using spherical coordinates. Convert from (x,y,z) to (phi,theta,r)
+/// then map to u and v using phi and theta
+void Mapping::SphereMappingMirrored(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
+{
+    for (auto const& vert : mesh.vertices())
+    {
+        Vec3 p = mesh.position(vert);
+
+        float u = 0.5 + (atan2f(p[2],p[0])/(2*PI));
+        float v = 0.5 - (asinf(p[1])/PI);
+
+        u *= 2.0f;
+
+        if (u > 1.0f)
+        {
+            u = 1.0f - (u - 1.0f);
+        }
+
+        uvmapping[vert] = Vec2(u, v);
+    }
+
+}
+
 /// Returns true if all cordinates in a uvmapping are from 0.f to 1.f
 bool Mapping::IsUVMapGood(SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {

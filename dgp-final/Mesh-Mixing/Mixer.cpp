@@ -47,7 +47,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     }
 
     SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
-    ComputeDifferentials(meshTo, differentialsSphere);
+    ComputeCotanDifferentials(meshTo, differentialsSphere);
 
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();
@@ -188,6 +188,8 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
         }
         differentials[v_i] = 0.25f * area * vecSum;
     }
+
+    std::cout << "Differentials finished." << std::endl;
 }
 
 SurfaceMesh Mixer::SmoothCopy(SurfaceMesh const& mesh, int iterations)

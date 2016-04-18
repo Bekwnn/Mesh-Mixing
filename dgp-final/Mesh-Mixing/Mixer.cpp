@@ -60,13 +60,8 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     // apply coating!
     for (std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex> v : vertexMappingUtoS)
     {
-        std::cout << "accessingFrom...";
-        Vec3 thing1 = meshFromNormals[v.second];
-        std::cout << "accessingTo...";
-        Vec3 thing2 = meshToNormals[v.first];
-
         // apply rotation matrix R (fromMesh to toMesh) to the diffDiff of meshFrom (v.second)
-        Vec3 rotatedDiffDiff = ComputeRotationMatrix(meshFromNormals[v.second], meshToNormals[v.first]) * Vec3(0,0,1);// * diffDiff[v.second];
+        Vec3 rotatedDiffDiff = ComputeRotationMatrix(meshFromNormals[v.second], meshToNormals[v.first]) * diffDiff[v.second];
         resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff;
     }
 

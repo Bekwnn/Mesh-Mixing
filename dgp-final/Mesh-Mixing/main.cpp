@@ -1,6 +1,7 @@
 #include <OpenGP/GL/GlfwWindow.h>
 #include <OpenGP/SurfaceMesh/SurfaceMesh.h>
 #include <OpenGP/SurfaceMesh/GL/SurfaceMeshRenderFlat.h>
+#include <OpenGP/SurfaceMesh/GL/SurfaceMeshRenderShaded.h>
 #include "internal/ArcballWindow.h"
 #include "Mixer.h"
 #include "Mapping.h"
@@ -20,10 +21,12 @@ struct MainWindow : public ArcballWindow{
     std::string thornsPlane = "thornsplane_e.obj";
     std::string spinePlane = "spineplane_e.obj";
     std::string smallSpine = "smallspine_e.obj";
+    std::string mountain = "mountaindata_e.obj";
+    std::string fractal = "fractal_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = meshFrom.read(datadir + smallSpine);
-        if(!success) mFatal() << "File not found: " << smallSpine;
+        bool success = meshFrom.read(datadir + fractal);
+        if(!success) mFatal() << "File not found: " << fractal;
         success = meshTo.read(datadir + icoSphere);
         if(!success) mFatal() << "File not found: " << icoSphere;
 

@@ -22,6 +22,6 @@ private:
                                                                      SurfaceMesh::Vertex_property<Vec2> meshToMap);
 
     static void ComputeDifferentials(SurfaceMesh const& input, SurfaceMesh::Vertex_property<Vec3>& differentials);
-
+    static void ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec3>& differentials);
     static void PercentProgress(int size, int iternum);
 };

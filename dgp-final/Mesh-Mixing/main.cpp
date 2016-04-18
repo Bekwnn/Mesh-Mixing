@@ -23,10 +23,11 @@ struct MainWindow : public ArcballWindow{
     std::string smallSpine = "smallspine_e.obj";
     std::string mountain = "mountaindata_e.obj";
     std::string fractal = "fractal_e.obj";
+    std::string perlin = "perlin.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = meshFrom.read(datadir + fractal);
-        if(!success) mFatal() << "File not found: " << fractal;
+        bool success = meshFrom.read(datadir + perlin);
+        if(!success) mFatal() << "File not found: " << perlin;
         success = meshTo.read(datadir + icoSphere);
         if(!success) mFatal() << "File not found: " << icoSphere;
 

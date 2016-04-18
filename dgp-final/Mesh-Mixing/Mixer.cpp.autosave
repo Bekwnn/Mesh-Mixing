@@ -52,10 +52,10 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();
     resultMesh.update_vertex_normals();
-    
-    for (auto m : vertexMappingUtoS)
+
+    for (auto m : vertexMap)
     {
-        
+
     }
 
     return resultMesh;
@@ -63,43 +63,43 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
 
 /// Takes two meshes and their corresponding UV maps to return a vertex mapping from
 /// meshFrom to meshTo. The mapping is not 1:1 nor onto.
-std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh const& meshFrom, SurfaceMesh const& meshTo,
-                                                                 SurfaceMesh::Vertex_property<Vec2> meshFromMap,
-                                                                 SurfaceMesh::Vertex_property<Vec2> meshToMap)
+std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh const& meshTo, SurfaceMesh const& meshFrom,
+                                                                 SurfaceMesh::Vertex_property<Vec2> meshToMap,
+                                                                 SurfaceMesh::Vertex_property<Vec2> meshFromMap)
 {
     std::cout << "UVMapping begins:" << std::endl;
 
-    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU;
+    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMap;
 
     std::vector<std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex>> vertexMapping;
 
     // Construct 3D mesh representative of meshFrom's uv mapping
-    SurfaceMesh flatU(meshTo);
+    SurfaceMesh flatU(meshFrom);
     for (auto vertU : meshTo.vertices())
     {
-        Vec2 tempv2 = meshToMap[vertU];
+        Vec2 tempv2 = meshFromMap[vertU];
         flatU.position(vertU) = Vec3(tempv2[0], tempv2[1], 0);
     }
 
-    SurfaceMeshVerticesKDTree meshToTree(flatU);
+    SurfaceMeshVerticesKDTree meshFromTree(flatU);
 
     // Find closest vertex mapping via uv coordinates
     size_t vertexID = 0;
-    for (auto vertS : meshFrom.vertices())
+    for (auto vertS : meshTo.vertices())
     {
-        Vec2 S = meshFromMap[vertS];
-        vertexMapping.push_back( std::make_pair(vertS, SurfaceMesh::Vertex( meshToTree.closest_vertex( Vec3(S[0], S[1], 0)).idx() ) ) );
+        Vec2 S = meshToMap[vertS];
+        vertexMapping.push_back( std::make_pair(vertS, SurfaceMesh::Vertex( meshFromTree.closest_vertex( Vec3(S[0], S[1], 0)).idx() ) ) );
 
         // Progress statement
         vertexID++;
         PercentProgress(meshFrom.n_vertices(), vertexID);
     }
 
-    vertexMappingStoU.insert(begin(vertexMapping), end(vertexMapping));
+    vertexMap.insert(begin(vertexMapping), end(vertexMapping));
 
     std::cout << "UVMapping finished." << std::endl;
 
-    return vertexMappingStoU;
+    return vertexMap;
 }
 
 /// Computes the laplacian coordinates using cotangent weights

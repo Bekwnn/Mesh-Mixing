@@ -33,19 +33,14 @@ void Mapping::PlaneMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property
 /// then map to u and v using phi and theta
 void Mapping::SphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec2>& uvmapping)
 {
-    for (auto const& v : mesh.vertices())
+    for (auto const& vert : mesh.vertices())
     {
-        Vec3 p = mesh.position(v);
-        float theta = acosf(p[1] / sqrtf(p[0]*p[0] + p[1]*p[1] + p[2]*p[2]));
-        float phi = atan(p[2] / p[0]);
+        Vec3 p = mesh.position(vert);
 
-        // Convert theta and phi -> [0,1]
-        theta = (theta + PI) / (2.0f*PI);
-        phi = (phi + (PI/2.0f)) / PI;
-        theta = fmin(1.0f, fmax(0.0f, theta));
-        phi = fmin(1.0f, fmax(0.0f, phi));
+        float u = 0.5 + (atan2f(p[2],p[0])/(2*PI));
+        float v = 0.5 - (asinf(p[1])/PI);
 
-        uvmapping[v] = Vec2(theta, phi);
+        uvmapping[vert] = Vec2(u, v);
     }
 
 }

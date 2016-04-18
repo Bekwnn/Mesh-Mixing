@@ -53,7 +53,17 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     meshFrom.update_vertex_normals();
     meshTo.update_vertex_normals();
 
+    Mixer::ApplyLaplacianShift(meshFrom, meshTo, vertexMappingUtoS);
+
     return resultMesh;
+}
+
+void Mixer::ApplyLaplacianShift(meshFrom, meshTo, vertexMappingUtoS)
+{
+    for (std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex> v : vertexMappingUtoS)
+    {
+
+    }
 }
 
 /// Takes two meshes and their corresponding UV maps to return a vertex mapping from
@@ -64,7 +74,7 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
 {
     std::cout << "UVMapping begins:" << std::endl;
 
-    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMappingStoU;
+    std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> vertexMap;
 
     std::vector<std::pair<SurfaceMesh::Vertex, SurfaceMesh::Vertex>> vertexMapping;
 
@@ -90,7 +100,7 @@ std::map<SurfaceMesh::Vertex, SurfaceMesh::Vertex> Mixer::MapUVs(SurfaceMesh con
         PercentProgress(meshFrom.n_vertices(), vertexID);
     }
 
-    vertexMappingStoU.insert(begin(vertexMapping), end(vertexMapping));
+    vertexMap.insert(begin(vertexMapping), end(vertexMapping));
 
     std::cout << "UVMapping finished." << std::endl;
 

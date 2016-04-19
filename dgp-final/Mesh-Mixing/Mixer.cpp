@@ -31,12 +31,12 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
             = MapUVs(meshTo, meshFrom, meshToMap, meshFromMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
-    ComputeDifferentials(meshFrom, differentialsFrom);
+    ComputeCotanDifferentials(meshFrom, differentialsFrom);
 
     //create smoothed copy of the coating mesh
     SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 40);
     SurfaceMesh::Vertex_property<Vec3> differentialsSmoothFrom = smoothFrom.add_vertex_property("SmoothDifferentials", Vec3());
-    ComputeDifferentials(smoothFrom, differentialsSmoothFrom);
+    ComputeCotanDifferentials(smoothFrom, differentialsSmoothFrom);
 
     //calculate differences from original coating mesh to the smoothing mesh
     SurfaceMesh::Vertex_property<Vec3> diffDiff = smoothFrom.add_vertex_property("Chi", Vec3());
@@ -47,7 +47,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     }
 
     SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
-    ComputeDifferentials(meshTo, differentialsSphere);
+    ComputeCotanDifferentials(meshTo, differentialsSphere);
 
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();
@@ -128,11 +128,73 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
 
         differentials[v_i] = p - sum * ( 1.0 / (float) valence);
     }
-    /*
-    Smoother s = Smoother(mesh);
-    s.init();
-    s.use_cotan_laplacian();
-    */
+
+    std::cout << "Differentials finished." << std::endl;
+}
+
+// An implementation of cotangent weights from Desbrun's 1999 paper on Implicit fairing
+void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_property<Vec3>& differentials)
+{
+    std::cout << "Computing Cotan Differentials:" << std::endl;
+
+    SurfaceMesh::Vertex v_j, vBeta, vAlpha;
+    SurfaceMesh::Halfedge betaEdge, alphaEdge;
+    Vec3 p_i, p_j, p_a, p_b, d_ib, d_ia, d_aj, d_bj, d_ij, vecSum;
+    float alpha, beta, area, cotanAlpha, cotanBeta;
+    int valence;
+    // Compute the Laplacian Coordinates of a mesh using cotangent weights
+    for (auto v_i : mesh.vertices())
+    {
+        p_i = mesh.position(v_i);
+        area = 0.0f;
+        vecSum = Vec3(0.0f, 0.0f, 0.0f);
+        valence = 0;
+        for (auto const& vert : mesh.vertices(v_i))
+        {
+            valence++;
+        }
+        for (auto const& edge : mesh.halfedges(v_i))
+        {
+            // Grab the vertex that the current edge points to.
+            v_j = mesh.to_vertex(edge);
+
+            // Now grab the edges that point to the two vertices
+            // that define alpha and beta.
+            betaEdge = mesh.next_halfedge(edge);
+            alphaEdge = mesh.next_halfedge(mesh.opposite_halfedge(edge));
+
+            // Grab the corresponding vertices.
+            vBeta = mesh.to_vertex(betaEdge);
+            vAlpha = mesh.to_vertex(alphaEdge);
+
+            // Now get the points to compute the angles.
+            p_i = mesh.position(v_i);
+            p_j = mesh.position(v_j);
+            p_b = mesh.position(vBeta);
+            p_a = mesh.position(vAlpha);
+
+            // Set the vectors.
+            d_ib = (p_b - p_i).normalized();
+            d_ia = (p_a - p_i).normalized();
+            d_aj = (p_j - p_a).normalized();
+            d_bj = (p_j - p_b).normalized();
+            d_ij = (p_j - p_i).normalized();
+
+            // Compute the angles.
+            beta = std::acos(d_ib.dot(d_bj));
+            alpha = std::acos(d_ia.dot(d_aj));
+
+            // Compute their cotangents.
+            cotanAlpha = 1.0f / std::tan(alpha);
+            cotanBeta = 1.0f / std::tan(beta);
+
+            // Compute the area and vecSum
+            area += (1.0f/(float)valence) * (d_ij.cross(d_ia)).norm();
+            vecSum += (cotanAlpha + cotanBeta) * (p_j - p_i);
+        }
+        differentials[v_i] = 0.25f * area * vecSum;
+    }
+
     std::cout << "Differentials finished." << std::endl;
 }
 

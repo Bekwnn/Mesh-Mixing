@@ -25,13 +25,14 @@ struct MainWindow : public ArcballWindow{
     std::string smallSpine = "smallspine_e.obj";
     std::string mountain = "mountaindata_e.obj";
     std::string fractal = "fractal_e.obj";
+    std::string perlin = "perlin.obj";
     std::string wool = "wool_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = meshFrom.read(datadir + fractal);
-        if(!success) mFatal() << "File not found: " << fractal;
-        success = meshTo.read(datadir + hemiSphere);
-        if(!success) mFatal() << "File not found: " << hemiSphere;
+        bool success = meshFrom.read(datadir + perlin);
+        if(!success) mFatal() << "File not found: " << perlin;
+        success = meshTo.read(datadir + icoSphere);
+        if(!success) mFatal() << "File not found: " << icoSphere;
 
         SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
         Mapping::PlaneMapping(meshFrom, uvCoordFrom);

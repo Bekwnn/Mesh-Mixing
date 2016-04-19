@@ -18,6 +18,8 @@ struct MainWindow : public ArcballWindow{
 
     std::string datadir = "../../dgp-final/data/";
     std::string icoSphere = "icosphere_e.obj";
+    std::string hemiSphere = "hemisphere_e.obj";
+
     std::string thornsPlane = "thornsplane_e.obj";
     std::string spinePlane = "spineplane_e.obj";
     std::string smallSpine = "smallspine_e.obj";
@@ -26,10 +28,10 @@ struct MainWindow : public ArcballWindow{
     std::string wool = "wool_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = meshFrom.read(datadir + wool);
-        if(!success) mFatal() << "File not found: " << wool;
-        success = meshTo.read(datadir + icoSphere);
-        if(!success) mFatal() << "File not found: " << icoSphere;
+        bool success = meshFrom.read(datadir + fractal);
+        if(!success) mFatal() << "File not found: " << fractal;
+        success = meshTo.read(datadir + hemiSphere);
+        if(!success) mFatal() << "File not found: " << hemiSphere;
 
         SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
         Mapping::PlaneMapping(meshFrom, uvCoordFrom);

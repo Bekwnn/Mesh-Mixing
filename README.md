@@ -17,7 +17,8 @@ In order to transfer the surface details of a mesh S to a mesh U, we first have 
 In our project we mostly transferred details from a plane mesh to a smooth sphere using programmatically generated mappings, however, programs such as Blender or Maya allow you to export UV map data, which could be used instead.
 
 ## Smoothing
-In order to capture the coating of a mesh, we compare the laplacian coordinates of the mesh (L\_s) to the laplacian coordinates of a smoothed copy of the mesh (L\_s'). Smoothing effectively destroys the details of the coating, and so when we compute the difference between the two: L\_diff = L\_s - L\_s'.
+In order to capture the coating of a mesh, we compare the laplacian coordinates of the mesh (L\_s) to the laplacian coordinates of a smoothed copy of the mesh (L\_s'). Smoothing effectively destroys the details of the coating, and so when we compute the difference between the two:
+L\_diff = L\_s - L\_s'.
 
 L\_diff becomes the Laplacian coordinates of the mesh S which we use to apply the coating to U.
 
@@ -32,7 +33,7 @@ j' = j + L\_diff_i
 main.cpp includes a method for loading, positioning, and rendering the meshes using OpenGP.
 
 ## Mapping.cpp/.h
-The Mapping class provides static functions for generating different kinds of UV mappings. The UV mappings are returned as a SurfaceMesh::Vertex_property\<Vec2\>.
+The Mapping class provides static functions for generating different kinds of UV mappings. The UV mappings are returned as a SurfaceMesh::Vertex_property<Vec2\>.
 
 ## Mixer.cpp/.h
 The main class for our algorithm. Takes a fromMesh, a toMesh, and both their UV mappings to return a copy of toMesh with the coating of fromMesh applied.

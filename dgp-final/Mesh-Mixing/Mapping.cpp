@@ -74,8 +74,8 @@ void Mapping::HemisphereMapping(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pro
     {
         Vec3 p = mesh.position(vert);
 
-        float u = 2.0f * (0.5f + (atan2f(p[2],p[0])/(2.0f*PI)));
-        float v = 2.0f * (0.5f + (asinf(p[1])/PI));
+        float u = 2.0f * (0.25f + (atan2f(p[2],p[0])/(2.0f*PI)));
+        float v = (0.5f - (asinf(p[1])/PI));
 
         uvmapping[vert] = Vec2(u,v);
     }

@@ -19,7 +19,6 @@ struct MainWindow : public ArcballWindow{
     std::string datadir = "../../dgp-final/data/";
     std::string icoSphere = "icosphere_e.obj";
     std::string hemiSphere = "hemisphere_e.obj";
-
     std::string thornsPlane = "thornsplane_e.obj";
     std::string spinePlane = "spineplane_e.obj";
     std::string smallSpine = "smallspine_e.obj";
@@ -31,13 +30,13 @@ struct MainWindow : public ArcballWindow{
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
         bool success = meshFrom.read(datadir + perlin);
         if(!success) mFatal() << "File not found: " << perlin;
-        success = meshTo.read(datadir + icoSphere);
-        if(!success) mFatal() << "File not found: " << icoSphere;
+        success = meshTo.read(datadir + hemiSphere);
+        if(!success) mFatal() << "File not found: " << hemiSphere;
 
         SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
         Mapping::PlaneMapping(meshFrom, uvCoordFrom);
         SurfaceMesh::Vertex_property<Vec2> uvCoordTo = meshTo.add_vertex_property("uvcoord", Vec2());
-        Mapping::SphereMapping(meshTo, uvCoordTo);
+        Mapping::HemisphereMapping(meshTo, uvCoordTo);
 
         meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
 

@@ -31,12 +31,12 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
             = MapUVs(meshTo, meshFrom, meshToMap, meshFromMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
-    ComputeCotanDifferentials(meshFrom, differentialsFrom);
+    ComputeDifferentials(meshFrom, differentialsFrom);
 
     //create smoothed copy of the coating mesh
     SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 40);
     SurfaceMesh::Vertex_property<Vec3> differentialsSmoothFrom = smoothFrom.add_vertex_property("SmoothDifferentials", Vec3());
-    ComputeCotanDifferentials(smoothFrom, differentialsSmoothFrom);
+    ComputeDifferentials(smoothFrom, differentialsSmoothFrom);
 
     //calculate differences from original coating mesh to the smoothing mesh
     SurfaceMesh::Vertex_property<Vec3> diffDiff = smoothFrom.add_vertex_property("Chi", Vec3());
@@ -47,7 +47,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     }
 
     SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
-    ComputeCotanDifferentials(meshTo, differentialsSphere);
+    ComputeDifferentials(meshTo, differentialsSphere);
 
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();

@@ -2,7 +2,7 @@
 ## Digital Geometry Processing Final Project
 ### Evan Nickerson, Nathan Burrell
 
-A project on transferring the surface details ("texture") from one mesh to another.
+A project on transferring the surface details (the coating or "texture") from one mesh to another.
 
 # The Theory
 ## Laplacian Coordinates

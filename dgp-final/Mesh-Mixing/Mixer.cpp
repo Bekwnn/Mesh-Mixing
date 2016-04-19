@@ -141,12 +141,18 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
     SurfaceMesh::Halfedge betaEdge, alphaEdge;
     Vec3 p_i, p_j, p_a, p_b, d_ib, d_ia, d_aj, d_bj, d_ij, vecSum;
     float alpha, beta, area, cotanAlpha, cotanBeta;
+    int valence;
     // Compute the Laplacian Coordinates of a mesh using cotangent weights
     for (auto v_i : mesh.vertices())
     {
         p_i = mesh.position(v_i);
         area = 0.0f;
         vecSum = Vec3(0.0f, 0.0f, 0.0f);
+        valence = 0;
+        for (auto const& vert : mesh.vertices(v_i))
+        {
+            valence++;
+        }
         for (auto const& edge : mesh.halfedges(v_i))
         {
             // Grab the vertex that the current edge points to.
@@ -183,7 +189,7 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
             cotanBeta = 1.0f / std::tan(beta);
 
             // Compute the area and vecSum
-            area += (1/6.0f) * (d_ij.cross(d_ia)).norm();
+            area += (1.0f/(float)valence) * (d_ij.cross(d_ia)).norm();
             vecSum += (cotanAlpha + cotanBeta) * (p_j - p_i);
         }
         differentials[v_i] = 0.25f * area * vecSum;

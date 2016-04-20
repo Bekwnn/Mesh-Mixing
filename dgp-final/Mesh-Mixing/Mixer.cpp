@@ -143,6 +143,7 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
     for (auto v_i : mesh.vertices())
     {
         // vertices on the boundary should instead use linear laplacian
+        // uses umbrella operator as described in desbrun et al. Implicit Fairing
         if (mesh.is_boundary(v_i))
         {
             int valence;
@@ -152,8 +153,6 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
             {
                 if (mesh.is_boundary(v_j))
                 {
-
-                    // equation 11 from desbrun et al. Implicit Fairing
                     valence++;
                     float edgeLen = (mesh.position(v_j) - mesh.position(v_i)).norm();
                     sumEdgeLen += edgeLen;

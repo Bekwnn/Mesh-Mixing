@@ -59,7 +59,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     {
         // apply rotation matrix R (fromMesh to toMesh) to the diffDiff of meshFrom (v.second)
         Vec3 rotatedDiffDiff = ComputeRotationMatrix(meshFromNormals[v.second], meshToNormals[v.first]) * diffDiff[v.second];
-        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff * 20.0f;
+        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff;
     }
 
     return resultMesh;
@@ -114,25 +114,16 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     // Compute the Laplacian Coordinates of a mesh using uniform weights
     for (auto v_i : mesh.vertices())
     {
-        // vertices on the boundary should instead use linear laplacian
-        if (mesh.is_boundary(v_i))
+        Vec3 p = mesh.position(v_i);
+        int valence = 0;
+        Vec3 sum(0.0f,0.0f,0.0f);
+        for (auto v_j : mesh.vertices(v_i))
         {
-
+            valence++;
+            sum += mesh.position(v_j);
         }
-        //non-boundary vertices
-        else
-        {
-            Vec3 p = mesh.position(v_i);
-            int valence = 0;
-            Vec3 sum(0.0f,0.0f,0.0f);
-            for (auto v_j : mesh.vertices(v_i))
-            {
-                valence++;
-                sum += mesh.position(v_j);
-            }
 
-            differentials[v_i] = p - sum * ( 1.0 / (float) valence);
-        }
+        differentials[v_i] = p - sum * ( 1.0 / (float) valence);
     }
 
     std::cout << "Differentials finished." << std::endl;
@@ -244,7 +235,7 @@ SurfaceMesh Mixer::SmoothCopy(SurfaceMesh const& mesh, int iterations)
 
     for (int i = 0; i < iterations; i++)
     {
-        smoother.smooth_explicit(0.1f);
+        smoother.smooth_explicit(0.2f);
         PercentProgress(iterations, i+1);
     }
 

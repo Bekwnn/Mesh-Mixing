@@ -35,16 +35,18 @@ j' = j + L\_diff_i
 
 #The Code
 ## Build/Compilation Instructions:
-This project is built in the same way as the lab code. See lab code instructions (they're more thorough than I would be).
-Dependencies:
-1. Eigen
-2. glfw
-3. opengl
+This project is built in the same way as the lab code. See lab code instructions (they're more thorough than I would be).  
 
-In order for the given file paths to work, the build folder should be in the same folder as the source directory "dgp-final". That is,
--code
---dgp-final
---dgp-final-build
+Dependencies:  
+1. Eigen  
+2. glfw  
+3. opengl  
+
+In order for the given file paths to work, the build folder should be in the same folder as the source directory "dgp-final". That is,  
+
+-code  
+--dgp-final  
+--dgp-final-build  
 
 ### Windows/Visual Studio Error
 When running in VS2015 on my home windows 7 computer, I experienced std::bad_alloc errors during the smoothing step, caused by the way visual studio and windows manages memory. The error is most often caused by running out of memory. These errors are not present when tested on the machines in ECS354 on OSX.
@@ -72,4 +74,14 @@ The cotangent laplacian solves this problem by not having the same vertex drift.
 ## UV Mapping Method
 The mapping method used produces good results on meshes which are high resolution with consistent edge lengths. However, having inconsistent vertex distribution and inconsistent edge lengths may result in some inconsistencies in appearance between the source mesh and the resulting applied coating.
 
-As an example: a vertex in the middle of a large, flat face which is surrounded by steep edges would have to map to the closest vertex on one of those sharply-detailed edges, even though by its appearances, the original vertex lies on a flatly-detailed plane.
+As an example: a vertex in the middle of a large, flat face which is surrounded by steep edges would have to map to the closest vertex on one of those sharply-detailed edges, even though by the mesh's appearance, the original vertex lies firmly in the middle of a flatly-detailed plane. This could be solved by interpolating between vertices based on UV coordinates, however that method was left outside the scope of this project.
+
+All in all, the UV mapping method provides a flexible and potentially customizable (through reading UV mapping data produced by blender/maya from a file) method for applying the coating to the target mesh.
+
+## Smoothing
+We used an iterative method of the explicit smoothing from the lab code. We attempted to implement the implicit smoothing included in the lab code as well, however the results produced by it were poor/bugged, and the source of the problem could not be pin-pointed.
+
+The iterative explicit smoothing method succeeds in capturing high-frequency details, but fails to capture some of the more mid-frequency details we would like to see it capture.
+
+## In Conclusion
+Using the cotangent coordinates, the program succeeds in convincingly applying the coating of the source mesh to the target mesh. There were a few more features which could have been added such as reading UV mappings from a file or improved smoothing, however most of them would have proved to be relatively time-consuming to solve. In graphics, visual appearance is exceedingly important and on that front I believe the program now succeeds.

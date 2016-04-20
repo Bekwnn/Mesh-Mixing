@@ -28,15 +28,15 @@ struct MainWindow : public ArcballWindow{
     std::string wool = "wool_e.obj";
 
     MainWindow() : ArcballWindow(__FILE__,1600,1200){
-        bool success = meshFrom.read(datadir + perlin);
-        if(!success) mFatal() << "File not found: " << perlin;
-        success = meshTo.read(datadir + hemiSphere);
-        if(!success) mFatal() << "File not found: " << hemiSphere;
+        bool success = meshFrom.read(datadir + wool);
+        if(!success) mFatal() << "File not found: " << wool;
+        success = meshTo.read(datadir + icoSphere);
+        if(!success) mFatal() << "File not found: " << icoSphere;
 
         SurfaceMesh::Vertex_property<Vec2> uvCoordFrom = meshFrom.add_vertex_property("uvcoord", Vec2());
         Mapping::PlaneMapping(meshFrom, uvCoordFrom);
         SurfaceMesh::Vertex_property<Vec2> uvCoordTo = meshTo.add_vertex_property("uvcoord", Vec2());
-        Mapping::HemisphereMapping(meshTo, uvCoordTo);
+        Mapping::SphereMapping(meshTo, uvCoordTo);
 
         meshResult = Mixer::ApplyCoating(meshFrom, meshTo, uvCoordFrom, uvCoordTo);
 

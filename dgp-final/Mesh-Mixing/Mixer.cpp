@@ -31,12 +31,12 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
             = MapUVs(meshTo, meshFrom, meshToMap, meshFromMap);
 
     SurfaceMesh::Vertex_property<Vec3> differentialsFrom = meshFrom.add_vertex_property("differentials", Vec3());
-    ComputeDifferentials(meshFrom, differentialsFrom);
+    ComputeCotanDifferentials(meshFrom, differentialsFrom);
 
     //create smoothed copy of the coating mesh
     SurfaceMesh smoothFrom = SmoothCopy(meshFrom, 40);
     SurfaceMesh::Vertex_property<Vec3> differentialsSmoothFrom = smoothFrom.add_vertex_property("SmoothDifferentials", Vec3());
-    ComputeDifferentials(smoothFrom, differentialsSmoothFrom);
+    ComputeCotanDifferentials(smoothFrom, differentialsSmoothFrom);
 
     //calculate differences from original coating mesh to the smoothing mesh
     SurfaceMesh::Vertex_property<Vec3> diffDiff = smoothFrom.add_vertex_property("Chi", Vec3());
@@ -45,9 +45,6 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     {
         diffDiff[v] = differentialsFrom[v] - differentialsSmoothFrom[v];
     }
-
-    SurfaceMesh::Vertex_property<Vec3> differentialsSphere = meshTo.add_vertex_property("SphereDifferentials", Vec3());
-    ComputeDifferentials(meshTo, differentialsSphere);
 
     //update vertex normals of meshes for orientation
     meshFrom.update_vertex_normals();
@@ -62,7 +59,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     {
         // apply rotation matrix R (fromMesh to toMesh) to the diffDiff of meshFrom (v.second)
         Vec3 rotatedDiffDiff = ComputeRotationMatrix(meshFromNormals[v.second], meshToNormals[v.first]) * diffDiff[v.second];
-        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff;
+        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff * 20.0f;
     }
 
     return resultMesh;
@@ -117,16 +114,25 @@ void Mixer::ComputeDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vertex_pr
     // Compute the Laplacian Coordinates of a mesh using uniform weights
     for (auto v_i : mesh.vertices())
     {
-        Vec3 p = mesh.position(v_i);
-        int valence = 0;
-        Vec3 sum(0.0f,0.0f,0.0f);
-        for (auto v_j : mesh.vertices(v_i))
+        // vertices on the boundary should instead use linear laplacian
+        if (mesh.is_boundary(v_i))
         {
-            valence++;
-            sum += mesh.position(v_j);
-        }
 
-        differentials[v_i] = p - sum * ( 1.0 / (float) valence);
+        }
+        //non-boundary vertices
+        else
+        {
+            Vec3 p = mesh.position(v_i);
+            int valence = 0;
+            Vec3 sum(0.0f,0.0f,0.0f);
+            for (auto v_j : mesh.vertices(v_i))
+            {
+                valence++;
+                sum += mesh.position(v_j);
+            }
+
+            differentials[v_i] = p - sum * ( 1.0 / (float) valence);
+        }
     }
 
     std::cout << "Differentials finished." << std::endl;
@@ -145,54 +151,79 @@ void Mixer::ComputeCotanDifferentials(SurfaceMesh const& mesh, SurfaceMesh::Vert
     // Compute the Laplacian Coordinates of a mesh using cotangent weights
     for (auto v_i : mesh.vertices())
     {
-        p_i = mesh.position(v_i);
-        area = 0.0f;
-        vecSum = Vec3(0.0f, 0.0f, 0.0f);
-        valence = 0;
-        for (auto const& vert : mesh.vertices(v_i))
+        // vertices on the boundary should instead use linear laplacian
+        if (mesh.is_boundary(v_i))
         {
-            valence++;
+            int valence;
+            float sumEdgeLen = 0.f;
+            Vec3 sumPosdiff(0.f, 0.f, 0.f);
+            for (auto const& v_j : mesh.vertices(v_i))
+            {
+                if (mesh.is_boundary(v_j))
+                {
+
+                    // equation 11 from desbrun et al. Implicit Fairing
+                    valence++;
+                    float edgeLen = (mesh.position(v_j) - mesh.position(v_i)).norm();
+                    sumEdgeLen += edgeLen;
+                    sumPosdiff += (mesh.position(v_j) - mesh.position(v_i));///edgeLen;
+                }
+            }
+
+            differentials[v_i] = (1.f/valence) * sumPosdiff;
         }
-        for (auto const& edge : mesh.halfedges(v_i))
+        //non-boundary vertices
+        else
         {
-            // Grab the vertex that the current edge points to.
-            v_j = mesh.to_vertex(edge);
-
-            // Now grab the edges that point to the two vertices
-            // that define alpha and beta.
-            betaEdge = mesh.next_halfedge(edge);
-            alphaEdge = mesh.next_halfedge(mesh.opposite_halfedge(edge));
-
-            // Grab the corresponding vertices.
-            vBeta = mesh.to_vertex(betaEdge);
-            vAlpha = mesh.to_vertex(alphaEdge);
-
-            // Now get the points to compute the angles.
             p_i = mesh.position(v_i);
-            p_j = mesh.position(v_j);
-            p_b = mesh.position(vBeta);
-            p_a = mesh.position(vAlpha);
+            area = 0.0f;
+            vecSum = Vec3(0.0f, 0.0f, 0.0f);
+            valence = 0;
+            for (auto const& vert : mesh.vertices(v_i))
+            {
+                valence++;
+            }
+            for (auto const& edge : mesh.halfedges(v_i))
+            {
+                // Grab the vertex that the current edge points to.
+                v_j = mesh.to_vertex(edge);
 
-            // Set the vectors.
-            d_ib = (p_b - p_i).normalized();
-            d_ia = (p_a - p_i).normalized();
-            d_aj = (p_j - p_a).normalized();
-            d_bj = (p_j - p_b).normalized();
-            d_ij = (p_j - p_i).normalized();
+                // Now grab the edges that point to the two vertices
+                // that define alpha and beta.
+                betaEdge = mesh.next_halfedge(edge);
+                alphaEdge = mesh.next_halfedge(mesh.opposite_halfedge(edge));
 
-            // Compute the angles.
-            beta = std::acos(d_ib.dot(d_bj));
-            alpha = std::acos(d_ia.dot(d_aj));
+                // Grab the corresponding vertices.
+                vBeta = mesh.to_vertex(betaEdge);
+                vAlpha = mesh.to_vertex(alphaEdge);
 
-            // Compute their cotangents.
-            cotanAlpha = 1.0f / std::tan(alpha);
-            cotanBeta = 1.0f / std::tan(beta);
+                // Now get the points to compute the angles.
+                p_i = mesh.position(v_i);
+                p_j = mesh.position(v_j);
+                p_b = mesh.position(vBeta);
+                p_a = mesh.position(vAlpha);
 
-            // Compute the area and vecSum
-            area += (1.0f/(float)valence) * (d_ij.cross(d_ia)).norm();
-            vecSum += (cotanAlpha + cotanBeta) * (p_j - p_i);
+                // Set the vectors.
+                d_ib = (p_b - p_i).normalized();
+                d_ia = (p_a - p_i).normalized();
+                d_aj = (p_j - p_a).normalized();
+                d_bj = (p_j - p_b).normalized();
+                d_ij = (p_j - p_i).normalized();
+
+                // Compute the angles.
+                beta = std::acos(d_ib.dot(d_bj));
+                alpha = std::acos(d_ia.dot(d_aj));
+
+                // Compute their cotangents.
+                cotanAlpha = 1.0f / std::tan(alpha);
+                cotanBeta = 1.0f / std::tan(beta);
+
+                // Compute the area and vecSum
+                area += (1.0f/(float)valence) * (d_ij.cross(d_ia)).norm();
+                vecSum += (cotanAlpha + cotanBeta) * (p_j - p_i);
+            }
+            differentials[v_i] = 0.25f * area * vecSum;
         }
-        differentials[v_i] = 0.25f * area * vecSum;
     }
 
     std::cout << "Differentials finished." << std::endl;

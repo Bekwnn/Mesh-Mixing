@@ -59,7 +59,7 @@ SurfaceMesh Mixer::ApplyCoating(SurfaceMesh& meshFrom, SurfaceMesh& meshTo,
     {
         // apply rotation matrix R (fromMesh to toMesh) to the diffDiff of meshFrom (v.second)
         Vec3 rotatedDiffDiff = ComputeRotationMatrix(meshFromNormals[v.second], meshToNormals[v.first]) * diffDiff[v.second];
-        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff;
+        resultMesh.position(v.first) = resultMesh.position(v.first) + rotatedDiffDiff * 5.0f;
     }
 
     return resultMesh;
